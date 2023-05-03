@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <stdbool.h>
 
 #define INTEL_NO_MACRO_BODY
 #define INTEL_ITTNOTIFY_API_PRIVATE
@@ -24,6 +25,7 @@ enum {
 static struct ref_collector_logger {
     char* file_name;
     uint8_t init_state;
+    bool use_stderr;
 } g_ref_collector_logger = {NULL, 0};
 
 char* log_file_name_generate()
@@ -54,6 +56,12 @@ void ref_col_init()
             #else
                 sprintf(file_name_buffer,"%s/%s", log_dir, log_file);
             #endif
+
+            if (!strncmp(log_dir, "stderr", 6)) {
+                g_ref_collector_logger.use_stderr = true;
+            } else {
+                g_ref_collector_logger.use_stderr = false;
+            }
         }
         else
         {
@@ -113,14 +121,14 @@ void log_func_call(uint8_t log_level, const char* function_name, const char* mes
         va_start(message_args, message_format);
         vsnprintf(log_buffer + result_len, LOG_BUFFER_MAX_SIZE - result_len, message_format, message_args);
 
-        pLogFile = fopen(g_ref_collector_logger.file_name, "a");
+        pLogFile = g_ref_collector_logger.use_stderr ? stderr : fopen(g_ref_collector_logger.file_name, "a");
         if (!pLogFile)
         {
             printf("ERROR: Cannot open file: %s\n", g_ref_collector_logger.file_name);
             return;
         }
         fprintf(pLogFile, "%s\n", log_buffer);
-        fclose(pLogFile);
+        g_ref_collector_logger.use_stderr ? : fclose(pLogFile);
     }
     else
     {
