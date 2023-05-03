@@ -4,7 +4,7 @@ SOURCE_NAME = itt_refcol_impl.c
 OBJ_NAME = itt_refcol_impl.o
 LIB_NAME = libittrefcol.so
 CC ?= gcc
-CFLAGS = -I$(INCLUDE_DIR) -I$(SRC_DIR)
+CFLAGS = -I$(INCLUDE_DIR) -I$(SRC_DIR) -ggdb
 
 build:
 	$(CC) -fPIC $(CFLAGS) -c $(SOURCE_NAME)
